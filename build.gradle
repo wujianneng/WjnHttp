@@ -59,7 +59,7 @@ publish {
     userOrg = 'wujianneng'//bintray.com用户名
     groupId = 'com.wujianneng'//jcenter上的路径
     artifactId = 'WjnHttp'//项目名称
-    publishVersion = '1.0.0'//版本号
-    desc = 'use rxjava2+retrofit2+ohttp3+sentrylog'//描述，不重要
+    publishVersion = '1.0.1'//版本号
+    desc = 'use rxjava2+retrofit2+ohttp3+rxlifecycle+sentrylog'//描述，不重要
     website = 'https://github.com/wujianneng/WjnHttp'//网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
 }

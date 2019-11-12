@@ -149,7 +149,7 @@ public class RetrofitManager {
         return retrofit.create(clazz);
     }
 
-    public static Disposable excute(ObservableTransformer transformer, final ModelListener listener, Observable<String> observable) {
+    public static Disposable excute(ObservableTransformer transformer, Observable<String> observable, final ModelListener listener) {
         return observable.compose(transformer)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -167,7 +167,7 @@ public class RetrofitManager {
     }
 
 
-    public static Disposable excute(final ModelListener listener, Observable<String> observable) {
+    public static Disposable excute(Observable<String> observable, final ModelListener listener) {
         return observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -185,7 +185,7 @@ public class RetrofitManager {
     }
 
 
-    public static <T> Disposable excuteGson(final ModelGsonListener listener, Observable<T> observable) {
+    public static <T> Disposable excuteGson( Observable<T> observable,final ModelGsonListener listener) {
         return observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -202,7 +202,7 @@ public class RetrofitManager {
                 });
     }
 
-    public static <T> Disposable excuteGson(ObservableTransformer transformer, final ModelGsonListener listener, Observable<T> observable) {
+    public static <T> Disposable excuteGson(ObservableTransformer transformer, Observable<T> observable, final ModelGsonListener listener) {
         return observable.compose(transformer)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -219,7 +219,7 @@ public class RetrofitManager {
                 });
     }
 
-    public static Disposable excuteDownload(ObservableTransformer transformer, final ModelGsonListener listener, Observable<ResponseBody> observable) {
+    public static Disposable excuteDownload(ObservableTransformer transformer,  Observable<ResponseBody> observable,final ModelGsonListener listener) {
         final String tempkey = RetrofitManager.headerKey;
         RetrofitManager.headerKey = "";
         return observable.compose(transformer)
@@ -240,7 +240,7 @@ public class RetrofitManager {
                 });
     }
 
-    public static Disposable excuteDownload(final ModelGsonListener listener, Observable<ResponseBody> observable) {
+    public static Disposable excuteDownload( Observable<ResponseBody> observable,final ModelGsonListener listener) {
         final String tempkey = RetrofitManager.headerKey;
         RetrofitManager.headerKey = "";
         return observable
@@ -287,7 +287,7 @@ public class RetrofitManager {
     }
 
     public static Disposable excuteDownloadAndSaveToPath(Observable<ResponseBody> observable, final File saveFile,
-            final DownloadListener listener) {
+                                                         final DownloadListener listener) {
         final String tempkey = RetrofitManager.headerKey;
         RetrofitManager.headerKey = "";
         return observable
@@ -311,7 +311,7 @@ public class RetrofitManager {
     }
 
     private static void handleFileSteam(InputStream byteStream, long fileSize, DownloadListener listener,
-                                        File saveFile) throws Exception{
+                                        File saveFile) throws Exception {
         Log.e("test", "handleFileSteam");
         FileOutputStream fos = null;
         try {
@@ -320,7 +320,7 @@ public class RetrofitManager {
             int len = 0;
             long sum = 0;
             while ((len = byteStream.read(bytes)) != -1) {
-                fos.write(bytes,0,len);
+                fos.write(bytes, 0, len);
                 sum += len;
                 listener.onProgress(sum * 1.0f / fileSize);
                 if (sum >= fileSize) {
