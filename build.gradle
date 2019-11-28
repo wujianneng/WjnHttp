@@ -36,6 +36,7 @@ dependencies {
     api('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: "com.android.support"
     }
+    implementation "com.github.bumptech.glide:okhttp3-integration:4.9.0"
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     api "com.squareup.retrofit2:retrofit:2.1.0"
     api "com.squareup.retrofit2:converter-scalars:2.1.0"
@@ -59,7 +60,7 @@ publish {
     userOrg = 'wujianneng'//bintray.com用户名
     groupId = 'com.wujianneng'//jcenter上的路径
     artifactId = 'WjnHttp'//项目名称
-    publishVersion = '1.0.1'//版本号
+    publishVersion = '1.0.2'//版本号
     desc = 'use rxjava2+retrofit2+ohttp3+rxlifecycle+sentrylog'//描述，不重要
     website = 'https://github.com/wujianneng/WjnHttp'//网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
 }
