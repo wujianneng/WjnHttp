@@ -13,6 +13,7 @@ import io.reactivex.ObservableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import io.sentry.Sentry;
 import io.sentry.android.AndroidSentryClientFactory;
@@ -149,6 +150,80 @@ public class RetrofitManager {
         return retrofit.create(clazz);
     }
 
+    public static Disposable excuteTwoOrder(final ObservableTransformer transformer, Observable<String> observable1, final ModelListener listener1, final Observable<String> observable2, final ModelListener listener2) {
+        return observable1.compose(transformer)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Consumer<String>() {
+                    @Override
+                    public void accept(String o) throws Exception {
+                        listener1.onSuccess(o);
+                    }
+                })
+                .doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        listener1.onFailed(throwable.getMessage());
+                    }
+                })
+                .observeOn(Schedulers.io())
+                .flatMap(new Function<String, Observable<String>>() {
+                    @Override
+                    public Observable<String> apply(String s) throws Exception {
+                        return observable2.compose(transformer);
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        listener2.onSuccess(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        listener2.onFailed(throwable.getMessage());
+                    }
+                });
+    }
+
+    public static Disposable excuteTwoOrder(Observable<String> observable1, final ModelListener listener1, final Observable<String> observable2, final ModelListener listener2) {
+        return observable1
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(new Consumer<String>() {
+                    @Override
+                    public void accept(String o) throws Exception {
+                        listener1.onSuccess(o);
+                    }
+                })
+                .doOnError(new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        listener1.onFailed(throwable.getMessage());
+                    }
+                })
+                .observeOn(Schedulers.io())
+                .flatMap(new Function<String, Observable<String>>() {
+                    @Override
+                    public Observable<String> apply(String s) throws Exception {
+                        return observable2;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        listener2.onSuccess(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        listener2.onFailed(throwable.getMessage());
+                    }
+                });
+    }
+
     public static Disposable excute(ObservableTransformer transformer, Observable<String> observable, final ModelListener listener) {
         return observable.compose(transformer)
                 .subscribeOn(Schedulers.io())
@@ -185,7 +260,7 @@ public class RetrofitManager {
     }
 
 
-    public static <T> Disposable excuteGson( Observable<T> observable,final ModelGsonListener listener) {
+    public static <T> Disposable excuteGson(Observable<T> observable, final ModelGsonListener listener) {
         return observable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -219,7 +294,7 @@ public class RetrofitManager {
                 });
     }
 
-    public static Disposable excuteDownload(ObservableTransformer transformer,  Observable<ResponseBody> observable,final ModelGsonListener listener) {
+    public static Disposable excuteDownload(ObservableTransformer transformer, Observable<ResponseBody> observable, final ModelGsonListener listener) {
         final String tempkey = RetrofitManager.headerKey;
         RetrofitManager.headerKey = "";
         return observable.compose(transformer)
@@ -240,7 +315,7 @@ public class RetrofitManager {
                 });
     }
 
-    public static Disposable excuteDownload( Observable<ResponseBody> observable,final ModelGsonListener listener) {
+    public static Disposable excuteDownload(Observable<ResponseBody> observable, final ModelGsonListener listener) {
         final String tempkey = RetrofitManager.headerKey;
         RetrofitManager.headerKey = "";
         return observable
@@ -340,6 +415,90 @@ public class RetrofitManager {
             }
         }
 
+    }
+
+    public static Disposable excuteUploadFile(ObservableTransformer transformer, Observable<ResponseBody>
+            observable, final UploadListener listener) {
+        final String tempkey = RetrofitManager.headerKey;
+        RetrofitManager.headerKey = "";
+        return observable.compose(transformer)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ResponseBody>() {
+                    @Override
+                    public void accept(ResponseBody s) throws Exception {
+                        RetrofitManager.headerKey = tempkey;
+                        Log.e("test", "accept:" + s.contentLength());
+                        listener.onSuccess(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        RetrofitManager.headerKey = tempkey;
+                        Log.e("test", "acceptThrowable:" + throwable.getMessage());
+                        listener.onError(throwable.getMessage());
+                    }
+                });
+    }
+
+    public static Disposable excuteUploadFileWithToekn(ObservableTransformer transformer, Observable<ResponseBody>
+            observable, final UploadListener listener) {
+        return observable.compose(transformer)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ResponseBody>() {
+                    @Override
+                    public void accept(ResponseBody s) throws Exception {
+                        Log.e("test", "accept:" + s.contentLength());
+                        listener.onSuccess(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e("test", "acceptThrowable:" + throwable.getMessage());
+                        listener.onError(throwable.getMessage());
+                    }
+                });
+    }
+
+    public static Disposable excuteUploadFile(Observable<ResponseBody> observable, final UploadListener listener) {
+        final String tempkey = RetrofitManager.headerKey;
+        RetrofitManager.headerKey = "";
+        return observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ResponseBody>() {
+                    @Override
+                    public void accept(ResponseBody s) throws Exception {
+                        RetrofitManager.headerKey = tempkey;
+                        Log.e("test", "accept:" + s.contentLength());
+                        listener.onSuccess(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        RetrofitManager.headerKey = tempkey;
+                        Log.e("test", "acceptThrowable:" + throwable.getMessage());
+                        listener.onError(throwable.getMessage());
+                    }
+                });
+    }
+
+    public static Disposable excuteUploadFileWithToekn(Observable<ResponseBody> observable, final UploadListener listener) {
+        return observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<ResponseBody>() {
+                    @Override
+                    public void accept(ResponseBody s) throws Exception {
+                        Log.e("test", "accept:" + s.contentLength());
+                        listener.onSuccess(s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        Log.e("test", "acceptThrowable:" + throwable.getMessage());
+                        listener.onError(throwable.getMessage());
+                    }
+                });
     }
 
 
